@@ -226,7 +226,7 @@ class MoleculeModelWrapper:
             except Exception as e:
                 print(f"Invalid input: {keep_features}")
                 raise e
-            pred = self.get_predictions(keep_atoms, keep_bonds, self.mol)
+            pred = self.get_predictions(keep_atoms, keep_bonds)
             preds.append([pred.item()])
         return np.array(preds)
     

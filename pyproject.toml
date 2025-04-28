@@ -5,10 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "chemprop>=2.0.2",
+    "chemprop>=2.1.2",
     "django>=5.2",
     "graphene>=3.4.3",
-    "numpy>=2.2.5",
+    "graphene-django>=3.2.3",
     "openpyxl>=3.1.5",
     "rdkit>=2024.9.6",
     "scikit-learn>=1.6.1",
