@@ -18,7 +18,7 @@ class AtomicQuery(graphene.ObjectType):
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
 
-        mpnn = models.MPNN.load_from_file(path.abspath("atomic/ml_models/mpnn_model_v2.pt"))
+        mpnn = models.MPNN.load_from_file(path.abspath("atomic/ml_models/target_inverted_model_v2.pt"))
 
         atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
         bond_featurizer = CustomMultiHotBondFeaturizer()
