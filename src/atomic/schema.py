@@ -10,10 +10,9 @@ from rdkit import Chem
 from chemprop import models
 
 class AtomicQuery(graphene.ObjectType):
-    scores = graphene.List(graphene.Float, mol_smile=graphene.String(required=True))
+    interpret_atomic = graphene.List(graphene.Float, mol_smile=graphene.String(required=True))
 
-
-    def resolve_scores(self, info, mol_smile):
+    def resolve_interpret_atomic(self, info, mol_smile):
         mol = Chem.MolFromSmiles(mol_smile)
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
