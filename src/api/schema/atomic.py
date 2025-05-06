@@ -5,7 +5,7 @@ from os import path
 
 import torch
 
-from .utils import MoleculeModelWrapper, binary_masker, CustomMultiHotAtomFeaturizer, CustomMultiHotBondFeaturizer
+from ..utils import MoleculeModelWrapper, binary_masker, CustomMultiHotAtomFeaturizer, CustomMultiHotBondFeaturizer
 from rdkit import Chem
 from chemprop import models
 

@@ -1,6 +1,6 @@
 import graphene
 
-from atomic.schema import AtomicQuery
+from api.schema.atomic import AtomicQuery
 
 class Query(
     AtomicQuery,
