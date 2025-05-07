@@ -4,6 +4,11 @@ import shap
 import xgboost
 import pandas as pd
 
+COLUMNS = ['HBA', 'HBD', 'HBA+HBD', 'NumRings', 'RTB', 'NumAmideBonds',
+               'Globularity', 'PBF', 'TPSA', 'logP', 'MR', 'MW', 'Csp3',
+               'fmf', 'QED', 'HAC', 'NumRingsFused', 'unique_HBAD', 'max_ring_size',
+               'n_chiral_centers', 'fcsp3_bm', 'formal_charge', 'abs_charge']
+
 class Descriptors(Scalar):
     hba = NonNull(Int)
     hbd = NonNull(Int)
@@ -30,18 +35,21 @@ class Descriptors(Scalar):
     abs_charge = NonNull(Int)
     
 class MolecularQuery(ObjectType):
-    interpret_molecular = List(Float, descriptors=Descriptors(required=True))
-
+    interpret_permeability_by_molecular_descriptors = List(Float, descriptors=Descriptors(required=True))
+    predict_permeability_by_molecular_descriptors = Float(descriptors=Descriptors(required=True))
+    
     def resolve_interpret_molecular(self, info, descriptors):
         optimal_xgb_descriptors = xgboost.XGBRegressor()
         optimal_xgb_descriptors.load_model(path.abspath("api/ml_models/optimal_xgb_descriptors.bin"))
 
         all_descriptors = pd.read_csv(path.abspath("api/data/all_descriptors.csv"))
-        
-        explainer = shap.Explainer(optimal_xgb_descriptors, all_descriptors[all_descriptors.columns[1:]])
-
-        explanation = explainer(pd.DataFrame([descriptors], columns=all_descriptors.columns[1:]))
-
-        print(explanation)
+        explainer = shap.Explainer(optimal_xgb_descriptors, all_descriptors[COLUMNS])
+        explanation = explainer(pd.DataFrame([descriptors], columns=COLUMNS))
 
         return explanation.values[0].tolist()
+    
+    def resolve_predict_permeability_by_descriptors(self, info, descriptors):
+        optimal_xgb_descriptors = xgboost.XGBRegressor()
+        optimal_xgb_descriptors.load_model(path.abspath("api/ml_models/optimal_xgb_descriptors.bin"))
+
+        return optimal_xgb_descriptors.predict(pd.DataFrame([descriptors], columns=COLUMNS))

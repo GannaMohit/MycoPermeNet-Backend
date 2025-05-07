@@ -8,9 +8,9 @@ from rdkit import Chem
 from chemprop import models
 
 class AtomicQuery(graphene.ObjectType):
-    interpret_atomic = graphene.List(graphene.Float, mol_smile=graphene.String(required=True))
+    interpret_permeability_by_atoms = graphene.List(graphene.Float, mol_smile=graphene.String(required=True))
 
-    def resolve_interpret_atomic(self, info, mol_smile):
+    def resolve_interpret_permeability_by_atoms(self, info, mol_smile):
         mol = Chem.MolFromSmiles(mol_smile)
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
