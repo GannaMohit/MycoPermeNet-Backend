@@ -1,0 +1,27 @@
+from graphene import Float, Scalar, NonNull, Int
+
+class Descriptors(Scalar):
+    hba = NonNull(Int)
+    hbd = NonNull(Int)
+    hba_plus_hbd = NonNull(Int)
+    nrings = NonNull(Int)
+    rtb = NonNull(Int)
+    n_amide_bond = NonNull(Int)
+    glob = NonNull(Float)
+    pbf = NonNull(Float)
+    psa = NonNull(Float)
+    logp = NonNull(Float)
+    mr = NonNull(Float)
+    mw = NonNull(Float)
+    csp3 = NonNull(Float)
+    fmf = NonNull(Float)
+    qed = NonNull(Float)
+    hac = NonNull(Int)
+    nrings_fused = NonNull(Int)
+    n_unique_hba_hbd_atoms = NonNull(Int)
+    max_ring_size = NonNull(Int)
+    n_chiral_centers = NonNull(Int)
+    fcsp3_bm = NonNull(Float)
+    f_charge = NonNull(Int)
+    abs_charge = NonNull(Int)
+    
