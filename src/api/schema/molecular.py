@@ -1,4 +1,8 @@
-from graphene import Float, Scalar, NonNull, Int
+from os import path
+from graphene import Float, List, ObjectType, Scalar, NonNull, Int, String
+import shap
+import xgboost
+import pandas as pd
 
 class Descriptors(Scalar):
     hba = NonNull(Int)
@@ -25,3 +29,19 @@ class Descriptors(Scalar):
     f_charge = NonNull(Int)
     abs_charge = NonNull(Int)
     
+class MolecularQuery(ObjectType):
+    interpret_molecular = List(Float, descriptors=Descriptors(required=True))
+
+    def resolve_interpret_molecular(self, info, descriptors):
+        optimal_xgb_descriptors = xgboost.XGBRegressor()
+        optimal_xgb_descriptors.load_model(path.abspath("api/ml_models/optimal_xgb_descriptors.bin"))
+
+        all_descriptors = pd.read_csv(path.abspath("api/data/all_descriptors.csv"))
+        
+        explainer = shap.Explainer(optimal_xgb_descriptors, all_descriptors[all_descriptors.columns[1:]])
+
+        explanation = explainer(pd.DataFrame([descriptors], columns=all_descriptors.columns[1:]))
+
+        print(explanation)
+
+        return explanation.values[0].tolist()
