@@ -1,21 +1,19 @@
 import graphene
 import shap
 import numpy as np
-from os import path
 
 from ..utils import MoleculeModelWrapper, binary_masker, CustomMultiHotAtomFeaturizer, CustomMultiHotBondFeaturizer
 from rdkit import Chem
-from chemprop import models
+from api.ml_models import mpnn, mlp_optimal
 
 class AtomicQuery(graphene.ObjectType):
     interpret_permeability_by_atoms = graphene.List(graphene.Float, mol_smile=graphene.String(required=True))
+    predict_permeability_by_smile = graphene.Float(mol_smile=graphene.String(required=True))
 
     def resolve_interpret_permeability_by_atoms(self, info, mol_smile):
         mol = Chem.MolFromSmiles(mol_smile)
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
-
-        mpnn = models.MPNN.load_from_file(path.abspath("api/ml_models/target_inverted_model_v2.pt"))
 
         atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
         bond_featurizer = CustomMultiHotBondFeaturizer()
@@ -30,4 +28,4 @@ class AtomicQuery(graphene.ObjectType):
 
         return explanation.values[0].tolist()
     
-# schema = graphene.Schema(query=AtomicQuery)
+    # TODO: resolve_predict_permeability_by_smile
