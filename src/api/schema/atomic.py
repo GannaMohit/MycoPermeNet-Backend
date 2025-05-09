@@ -4,7 +4,7 @@ import numpy as np
 
 from ..utils import MoleculeModelWrapper, binary_masker, CustomMultiHotAtomFeaturizer, CustomMultiHotBondFeaturizer
 from rdkit import Chem
-from api.ml_models import mpnn, mlp_optimal
+from api.ml_models import mpnn
 
 class AtomicQuery(graphene.ObjectType):
     interpret_permeability_by_atoms = graphene.List(graphene.Float, mol_smile=graphene.String(required=True))
@@ -29,3 +29,15 @@ class AtomicQuery(graphene.ObjectType):
         return explanation.values[0].tolist()
     
     # TODO: resolve_predict_permeability_by_smile
+
+    def resolve_predict_permeability_by_smile(self, info, mol_smile):
+        mol = Chem.MolFromSmiles(mol_smile)
+        n_atoms = mol.GetNumAtoms()
+        n_bonds = mol.GetNumBonds()
+
+        atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
+        bond_featurizer = CustomMultiHotBondFeaturizer()
+
+        model_wrapper = MoleculeModelWrapper(mol_smile, n_atoms, n_bonds, mpnn, atom_featurizer, bond_featurizer)
+
+        return model_wrapper.get_predictions(keep_atoms=None, keep_bonds=None)

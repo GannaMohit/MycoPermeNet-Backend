@@ -2,6 +2,8 @@ from graphene import Float, List, ObjectType, Scalar, NonNull, Int
 import shap
 import pandas as pd
 
+from os import path
+
 from api.ml_models import optimal_xgb_descriptors
 
 COLUMNS = ['HBA', 'HBD', 'HBA+HBD', 'NumRings', 'RTB', 'NumAmideBonds',
@@ -42,9 +44,7 @@ class MolecularQuery(ObjectType):
         all_descriptors = pd.read_csv(path.abspath("api/data/all_descriptors.csv"))
         explainer = shap.Explainer(optimal_xgb_descriptors, all_descriptors[COLUMNS])
         explanation = explainer(pd.DataFrame([descriptors], columns=COLUMNS))
-
         return explanation.values[0].tolist()
     
     def resolve_predict_permeability_by_molecular_descriptors(self, info, descriptors):
-
         return optimal_xgb_descriptors.predict(pd.DataFrame([descriptors], columns=COLUMNS))
