@@ -9,34 +9,50 @@ from graphene import ObjectType, NonNull, List, String, Float
 
 class AtomicQuery(ObjectType):
     interpret_permeability_by_atoms = List(Float, mol_smile=String(required=True))
-    predict_permeability_by_smile = Float(mol_smile=String(required=True))
+    predict_permeability_by_atoms = Float(mol_smile=String(required=True))
+
+    interpret_permeability_of_list_by_atoms = List(List(Float), mol_list=List(String, required=True))
+    predict_permeability_of_list_by_atoms = List(Float, mol_list=List(String, required=True))
 
     def resolve_interpret_permeability_by_atoms(self, info, mol_smile):
-        mol = Chem.MolFromSmiles(mol_smile)
-        n_atoms = mol.GetNumAtoms()
-        n_bonds = mol.GetNumBonds()
+        return helper_resolve_interpret_permeability_by_atoms(mol_smile)
 
-        atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
-        bond_featurizer = CustomMultiHotBondFeaturizer()
+    def resolve_predict_permeability_by_atoms(self, info, mol_smile):
+        return helper_resolve_predict_permeability_by_atoms(mol_smile)
+    
+    def resolve_interpret_permeability_of_list_by_atoms(self, info, mol_list):
+        return list(map(helper_resolve_interpret_permeability_by_atoms, mol_list))
+    
+    def resolve_predict_permeability_of_list_by_atoms(self, info, mol_list):
+        return list(map(helper_resolve_predict_permeability_by_atoms, mol_list))
+    
+def helper_resolve_interpret_permeability_by_atoms(mol_smile):
+    mol = Chem.MolFromSmiles(mol_smile)
+    n_atoms = mol.GetNumAtoms()
+    n_bonds = mol.GetNumBonds()
 
-        model_wrapper = MoleculeModelWrapper(mol_smile, n_atoms, n_bonds, mpnn, atom_featurizer, bond_featurizer)
-        explainer = shap.PermutationExplainer(model_wrapper, masker=binary_masker)
+    atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
+    bond_featurizer = CustomMultiHotBondFeaturizer()
 
-        keep_features = [1] * (n_atoms + n_bonds)
-        feature_choice = np.array([keep_features])
+    model_wrapper = MoleculeModelWrapper(mol_smile, n_atoms, n_bonds, mpnn, atom_featurizer, bond_featurizer)
+    explainer = shap.PermutationExplainer(model_wrapper, masker=binary_masker)
 
-        explanation = explainer(feature_choice)
+    keep_features = [1] * (n_atoms + n_bonds)
+    feature_choice = np.array([keep_features])
 
-        return explanation.values[0].tolist()
+    explanation = explainer(feature_choice)
 
-    def resolve_predict_permeability_by_smile(self, info, mol_smile):
-        mol = Chem.MolFromSmiles(mol_smile)
-        n_atoms = mol.GetNumAtoms()
-        n_bonds = mol.GetNumBonds()
+    return explanation.values[0].tolist()
 
-        atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
-        bond_featurizer = CustomMultiHotBondFeaturizer()
+def helper_resolve_predict_permeability_by_atoms(mol_smile):
+    mol = Chem.MolFromSmiles(mol_smile)
+    n_atoms = mol.GetNumAtoms()
+    n_bonds = mol.GetNumBonds()
 
-        model_wrapper = MoleculeModelWrapper(mol_smile, n_atoms, n_bonds, mpnn, atom_featurizer, bond_featurizer)
+    atom_featurizer = CustomMultiHotAtomFeaturizer.v1()
+    bond_featurizer = CustomMultiHotBondFeaturizer()
 
-        return model_wrapper.get_predictions(keep_atoms=None, keep_bonds=None)
+    model_wrapper = MoleculeModelWrapper(mol_smile, n_atoms, n_bonds, mpnn, atom_featurizer, bond_featurizer)
+
+    return model_wrapper.get_predictions(keep_atoms=None, keep_bonds=None)
+           
