@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Enter sub-directory
+        run: cd src
+
       - name: Create and start virtual environment
         run: |
           python -m venv venv
