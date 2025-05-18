@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k(my+lddmlf)iozx3_+-7v$2xajbdm&f_x@(z36xx52euu$7ou'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get('DEBUG', False))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [] if DEBUG else ['mycopermenet-api-e9ayebfygfh0dsg2.eastus-01.azurewebsites.net']
 
 
 # Application definition
