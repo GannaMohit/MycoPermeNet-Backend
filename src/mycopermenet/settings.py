@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't', 'y', 'yes')
 
-ALLOWED_HOSTS = [] if DEBUG else ['mycopermenet-api-e9ayebfygfh0dsg2.eastus-01.azurewebsites.net']
+ALLOWED_HOSTS = [] if DEBUG else ['mycopermenet-api-e9ayebfygfh0dsg2.eastus-01.azurewebsites.net', '.vercel.app']
 
 
 # Application definition
@@ -56,6 +56,7 @@ MIDDLEWARE = [
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'https://mycopermenet.vercel.app'
 )
 
 ROOT_URLCONF = 'mycopermenet.urls'
