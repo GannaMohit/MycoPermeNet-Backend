@@ -1,8 +1,10 @@
-from graphene import Float, List, ObjectType, Scalar, NonNull, Int
+from graphene import Float, List, ObjectType, Scalar, NonNull, Int, String
 import shap
 import pandas as pd
 
 from os import path
+
+from sklearn.neighbors import NearestNeighbors
 
 from api.ml_models import optimal_xgb_descriptors
 
@@ -35,10 +37,17 @@ class Descriptors(Scalar):
     fcsp3_bm = NonNull(Float)
     f_charge = NonNull(Int)
     abs_charge = NonNull(Int)
+
+class SimilarMolecule(Scalar):
+    smile = NonNull(String)
+    distance = NonNull(Float)
+
     
 class MolecularQuery(ObjectType):
     interpret_permeability_by_molecular_descriptors = List(Float, descriptors=Descriptors(required=True))
     predict_permeability_by_molecular_descriptors = Float(descriptors=Descriptors(required=True))
+
+    find_similar_molecules_by_molecular_descriptors = List(SimilarMolecule, descriptors=Descriptors(required=True))
     
     def resolve_interpret_permeability_by_molecular_descriptors(self, info, descriptors):
         all_descriptors = pd.read_csv(path.abspath("api/data/all_descriptors.csv"))
@@ -48,3 +57,16 @@ class MolecularQuery(ObjectType):
     
     def resolve_predict_permeability_by_molecular_descriptors(self, info, descriptors):
         return optimal_xgb_descriptors.predict(pd.DataFrame([descriptors], columns=COLUMNS))
+    
+    def resolve_find_similar_molecules_by_molecular_descriptors(self, info, descriptors):
+        data = pd.read_csv(path.abspath("api/data/all_molecule_descriptor_dataset.csv"), header=0, index_col=0)
+       
+        nn = NearestNeighbors()
+        nn.fit(data[COLUMNS].dropna())
+
+        # Find nearest neighbors
+        distances, indices = nn.kneighbors(pd.DataFrame([descriptors], columns=COLUMNS))
+
+        similar_rows = data.iloc[indices[0]]['SMILES']
+
+        return list(zip(similar_rows.to_list(), distances[0].tolist()))
