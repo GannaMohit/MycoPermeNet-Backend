@@ -65,7 +65,7 @@ class MolecularQuery(ObjectType):
         nn.fit(data[COLUMNS].dropna())
 
         # Find nearest neighbors
-        distances, indices = nn.kneighbors(pd.DataFrame([descriptors], columns=COLUMNS))
+        distances, indices = nn.kneighbors(pd.DataFrame([descriptors], columns=COLUMNS), n_neighbors=10)
 
         similar_rows = data.iloc[indices[0]]['SMILES']
 
