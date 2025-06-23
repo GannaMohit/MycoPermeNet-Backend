@@ -54,4 +54,4 @@ class SimilarityQuery(ObjectType):
         for key in ['maccs', 'avalon', 'morgan', 'atom_pair', 'topological', 'rdkit']:
             df[key] = DataStructs.BulkTanimotoSimilarity(fps[key], list(map(lambda x: x[key], fingerprints)))
 
-        return df.nlargest(max_output_length, columns='maccs').values.tolist()
+        return df.nlargest(max_output_length, columns=sorting_fingerprint).values.tolist()
